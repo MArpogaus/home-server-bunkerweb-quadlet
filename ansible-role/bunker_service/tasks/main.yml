@@ -8,7 +8,7 @@
 
 - name: Deploy Bunkerweb Quadlet files (container, volume, network)
   ansible.builtin.copy:
-    src: "{{ bunker_role_dir }}/../../quadlets/"
+    src: "{{ bunker_service_role_dir }}/../../quadlets/"
     dest: "{{ bunker_service_home }}/.config/containers/systemd/"
     owner: "{{ bunker_service_user }}"
     mode: "0644"
