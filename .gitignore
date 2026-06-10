@@ -129,4 +129,6 @@ $RECYCLE.BIN/
 # Additional patterns for service-bunker
 
 .env
+configs/*.env
+!configs/*.env.example
 *.log
