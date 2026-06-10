@@ -1,73 +1,124 @@
 # service-bunker
 
-Bunkerweb reverse proxy v1.6.11 via Podman Quadlet.
+Bunkerweb (security-focused web server) deployment via Podman Quadlet.
 
-## Architecture
+## Structure
 
 ```
-┌─────────────────────────────────────────────────────┐
-│  Bunkerweb Service (Quadlet)                        │
-│                                                     │
-│  bunker-nginx     ─ Bunkerweb nginx (v1.6.11)       │
-│  bunker-scheduler ─ Bunkerweb scheduler             │
-│                                                     │
-│  Network: shared-network (bridge 10.89.0.0/24)      │
-│  Ports: 80:8080/tcp, 443:8443/tcp                   │
-│  Proxy: cloud.arpogaus.de → http://nextcloud-web:80  │
-└─────────────────────────────────────────────────────┘
+service-bunker/
+├── containers/
+│   ├── bunker-nginx/
+│   │   └── Containerfile
+│   └── bunker-scheduler/
+│       └── Containerfile
+├── quadlets/
+│   ├── bunker-nginx.container
+│   ├── bunker-scheduler.container
+│   ├── volumes/
+│   │   ├── bw-data.volume
+│   │   └── bw-nginx-data.volume
+│   └── networks/
+│       └── shared-network.network
+└── ansible-role/
+    └── bunker_service/
+        └── tasks/
+            └── main.yml
 ```
 
-## Quick Start
+## Container Build
 
-1. Copy `.env.example` to `.env` and fill in settings:
-   ```bash
-   cp .env.example .env
-   ```
+Build Bunkerweb container images:
 
-2. Deploy Quadlet files to systemd user directory:
-   ```bash
-   cp containers/* ~/.config/systemd/user/
-   cp volumes/* ~/.config/systemd/user/
-   cp networks/*.network ~/.config/systemd/user/
-   ```
+```bash
+cd containers/bunker-nginx
+podman build -t ghcr.io/your-org/bunker-nginx:latest .
+podman push ghcr.io/your-org/bunker-nginx:latest
 
-3. Reload and enable:
-   ```bash
-   systemctl --user daemon-reload
-   systemctl --user enable --now bunker-nginx bunker-scheduler
-   ```
+cd ../bunker-scheduler
+podman build -t ghcr.io/your-org/bunker-scheduler:latest .
+podman push ghcr.io/your-org/bunker-scheduler:latest
+```
 
-4. Verify:
-   ```bash
-   podman ps
-   systemctl --user list-units --type=service | grep bunker
-   ```
+## Quadlet Services
 
-## Reverse Proxy Targets
+- `bunker-nginx.container` - Main Bunkerweb nginx instance
+- `bunker-scheduler.container` - Let's Encrypt renewal scheduler
 
-| Host | Upstream | Rate Limits |
-|---|---|---|
-| `cloud.arpogaus.de` | `http://nextcloud-web:80` (Nextcloud) | apps: 5r/s, preview: 5r/s, push: 8r/s, memories/api: 8r/s |
+### Volume Definitions
 
-## Environment Variables
+- `bw-data.volume` - Bunkerweb configuration and data
+- `bw-nginx-data.volume` - Nginx-specific data (certificates, etc.)
 
-| Variable | Description | Example |
-|---|---|---|
-| `SERVER_NAME` | Domain name | `cloud.arpogaus.de` |
-| `AUTO_LETS_ENCRYPT` | Enable Let's Encrypt | `yes` |
-| `WHITELIST_COUNTRY` | Allowed countries | `DE CH AT` |
-| `LIMIT_REQ_RATE` | Default rate limit | `3r/s` |
-| `API_WHITELIST_IP` | Trusted IPs | `127.0.0.1 10.0.0.0/8` |
+### Network
 
-## Volumes
+`shared-network.network` - Bridge network (10.89.0.0/24) shared with Nextcloud.
 
-| Volume | Purpose | SELinux |
-|---|---|---|
-| `bw-nginx-data` | Bunkerweb nginx config | `:Z` |
-| `bw-data` | Bunkerweb data | `:Z` |
+## Ansible Deployment
 
-## Notes
+Use the included Ansible role to deploy Quadlet services:
 
-- Uses official Bunkerweb images (no custom build needed)
-- Rate limiting configured per URL path in `bunkerized_nginx.env`
-- JSON analytics logging via mounted `json_analytics.conf`
+```yaml
+- hosts: all
+  roles:
+    - role: bunker_service
+      bunker_service_user: proxy
+      bunker_service_home: /var/services/proxy
+```
+
+See `ansible-role/README.md` for details.
+
+## Configuration
+
+Bunkerweb configuration is managed via environment variables in `.env` files:
+
+```bash
+cp configs/bunkerized_nginx.env.example configs/bunkerized_nginx.env
+# Edit with your domain and security settings
+```
+
+Key settings:
+- `SERVER_NAME` - Your domain
+- `REVERSE_PROXY_HOST` - Backend service (nextcloud-web)
+- `AUTO_LETS_ENCRYPT` - Automatic SSL certificates
+- `USE_MODSECURITY` - WAF protection
+
+## Network Architecture
+
+```
++------------------+
+|   Internet       |
++------------------+
+        |
+        v
++------------------+
+|  Bunkerweb       |
+|  (nginx:443)     |
++------------------+
+        |
+        v
++------------------+
+|  nextcloud-web   |
+|  (nginx:80)      |
++------------------+
+```
+
+Bunkerweb acts as reverse proxy and security layer for Nextcloud.
+
+## Security Features
+
+- WAF (ModSecurity)
+- Rate limiting
+- Bot protection
+- Automatic SSL (Let's Encrypt)
+- Geo-blocking
+- Header security
+
+## Requirements
+
+- Podman 4.0+ (Quadlet support)
+- systemd user instances
+- Btrfs filesystem (recommended for snapshots)
+
+## License
+
+MIT - See LICENSE file
