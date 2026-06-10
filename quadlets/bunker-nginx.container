@@ -1,8 +1,7 @@
 [Container]
 Image=docker.io/bunkerity/bunkerweb:1.6.11
 ContainerName=bunker-nginx
-PodmanArgs=--env API_WHITELIST_IP="127.0.0.1 10.0.0.0/8" \
-           --env-file=./configs/bunkerized_nginx.env \
+PodmanArgs=--env-file=./configs/bunkerized_nginx.env \
            --env-file=./configs/json_analytics.env \
            --volume=bw-nginx-data:/data:Z \
            --volume=./files/json_analytics.conf:/etc/nginx/conf.d/json_analytics.conf:ro,Z \
@@ -10,7 +9,6 @@ PodmanArgs=--env API_WHITELIST_IP="127.0.0.1 10.0.0.0/8" \
            --publish=443:8443/tcp \
            --restart=always
 Network=shared-network
-Label=io.containers.autoupdate=registry
 
 [Install]
 WantedBy=default.target

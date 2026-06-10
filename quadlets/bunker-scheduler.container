@@ -2,13 +2,11 @@
 Image=docker.io/bunkerity/bunkerweb-scheduler:1.6.11
 ContainerName=bunker-scheduler
 PodmanArgs=--requires=bunker-nginx \
-           --env API_WHITELIST_IP="127.0.0.1 10.0.0.0/8" \
            --env-file=./configs/bunkerized_nginx.env \
            --env-file=./configs/json_analytics.env \
            --volume=bw-data:/data:Z \
            --restart=always
 Network=shared-network
-Label=io.containers.autoupdate=registry
 
 [Install]
 WantedBy=default.target
