@@ -1,0 +1,31 @@
+---
+# Bunkerweb Service Deployment Role
+# Deploys Quadlet services for Bunkerweb
+# No specific configuration - uses files from this repository
+
+- name: Ensure Bunkerweb user home directory exists
+  ansible.builtin.file:
+    path: "{{ bunker_service_home }}/.config/systemd/user"
+    state: directory
+    owner: "{{ bunker_service_user }}"
+    mode: "0755"
+  vars:
+    bunker_service_user: "{{ bunker_service_user | default('proxy') }}"
+    bunker_service_home: "{{ bunker_service_home | default('/var/services/proxy') }}"
+
+- name: Deploy Bunkerweb Quadlet container files
+  ansible.builtin.copy:
+    src: "../quadlets/"
+    dest: "{{ bunker_service_home }}/.config/systemd/user/"
+    owner: "{{ bunker_service_user }}"
+    mode: "0644"
+    directory_mode: "0755"
+  vars:
+    bunker_service_user: "{{ bunker_service_user | default('proxy') }}"
+    bunker_service_home: "{{ bunker_service_home | default('/var/services/proxy') }}"
+
+- name: Notify to reload systemd user daemon
+  ansible.builtin.debug:
+    msg: "Bunkerweb Quadlet services deployed. Run 'run0 systemctl --user daemon-reload --machine={{ bunker_service_user }}@' to activate."
+  vars:
+    bunker_service_user: "{{ bunker_service_user | default('proxy') }}"
