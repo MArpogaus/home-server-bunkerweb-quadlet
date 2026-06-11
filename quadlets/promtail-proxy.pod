@@ -1,0 +1,3 @@
+[Pod]
+PodName=promtail-proxy
+PodmanArgs=--network slirp4netns:allow_host_loopback=true

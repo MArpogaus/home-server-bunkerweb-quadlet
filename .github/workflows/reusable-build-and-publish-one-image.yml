@@ -48,22 +48,22 @@ jobs:
       packages: write
       id-token: write
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd   # v6.0.2
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd   # v6.0.2
 
-    - name: Build and Push Image
-      id: build
-      uses: ./
-      with:
-        image-name: ${{ inputs.image-name }}
-        containerfile: ${{ inputs.containerfile }}
-        context: ${{ inputs.context }}
-        platform: ${{ inputs.platform }}
-        slsa-verify-source: ${{ inputs.slsa-verify-source }}
-        cosign-public-key: ${{ inputs.cosign-public-key }}
-        build-args: ${{ inputs.build-args }}
-        free-disk-space: ${{ inputs.free-disk-space }}
-        signing-secret: ${{ secrets.SIGNING_SECRET }}
+      - name: Build and Push Image
+        id: build
+        uses: ./
+        with:
+          image-name: ${{ inputs.image-name }}
+          containerfile: ${{ inputs.containerfile }}
+          context: ${{ inputs.context }}
+          platform: ${{ inputs.platform }}
+          slsa-verify-source: ${{ inputs.slsa-verify-source }}
+          cosign-public-key: ${{ inputs.cosign-public-key }}
+          build-args: ${{ inputs.build-args }}
+          free-disk-space: ${{ inputs.free-disk-space }}
+          signing-secret: ${{ secrets.SIGNING_SECRET }}
 
   provenance:
     needs: [build_and_push_image]

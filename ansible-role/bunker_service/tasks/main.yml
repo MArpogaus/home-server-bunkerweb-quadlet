@@ -32,17 +32,17 @@
   ansible.builtin.systemd:
     daemon_reload: true
     scope: user
-  become: yes
+  become: true
   become_user: "{{ bunker_service_user }}"
 
-- name: Enable and start Bunkerweb Quadlet services
+- name: Start Bunkerweb Quadlet services (enable handled by Quadlet generator)
   ansible.builtin.systemd:
     name: "{{ item }}"
-    enabled: true
     state: started
     scope: user
-  become: yes
+  become: true
   become_user: "{{ bunker_service_user }}"
   loop:
     - bunker-nginx
     - bunker-scheduler
+    - promtail-proxy
