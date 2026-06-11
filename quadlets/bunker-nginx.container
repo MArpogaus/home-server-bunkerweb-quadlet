@@ -7,7 +7,10 @@ EnvironmentFile=./configs/json_analytics.env
 Volume=bw-nginx-data:/data:Z
 Volume=./files/json_analytics.conf:/etc/nginx/conf.d/json_analytics.conf:ro,Z
 AutoUpdate=registry
-RestartPolicy=on-failure
+
+[Service]
+Restart=on-failure
+RestartSec=10s
 
 [Unit]
 Requires=bunker-scheduler.service
