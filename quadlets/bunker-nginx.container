@@ -1,14 +1,18 @@
 [Container]
 Image=docker.io/bunkerity/bunkerweb:1.6.11
 ContainerName=bunker-nginx
-PodmanArgs=--env-file=./configs/bunkerized_nginx.env \
-           --env-file=./configs/json_analytics.env \
-           --volume=bw-nginx-data:/data:Z \
-           --volume=./files/json_analytics.conf:/etc/nginx/conf.d/json_analytics.conf:ro,Z \
-           --publish=80:8080/tcp \
-           --publish=443:8443/tcp \
-           --restart=always
+EnvironmentFile=./configs/bunkerized_nginx.env
+EnvironmentFile=./configs/json_analytics.env
+Volume=bw-nginx-data:/data:Z
+Volume=./files/json_analytics.conf:/etc/nginx/conf.d/json_analytics.conf:ro,Z
+PublishPort=80:8080/tcp
+PublishPort=443:8443/tcp
 Network=shared-network
+AutoUpdate=registry
+
+[Unit]
+Requires=bunker-scheduler.service
+After=bunker-scheduler.service
 
 [Install]
 WantedBy=default.target

@@ -34,3 +34,15 @@
     scope: user
   become: yes
   become_user: "{{ bunker_service_user }}"
+
+- name: Enable and start Bunkerweb Quadlet services
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    enabled: true
+    state: started
+    scope: user
+  become: yes
+  become_user: "{{ bunker_service_user }}"
+  loop:
+    - bunker-nginx
+    - bunker-scheduler

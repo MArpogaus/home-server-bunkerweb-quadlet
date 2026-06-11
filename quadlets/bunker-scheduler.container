@@ -1,12 +1,11 @@
 [Container]
 Image=docker.io/bunkerity/bunkerweb-scheduler:1.6.11
 ContainerName=bunker-scheduler
-PodmanArgs=--requires=bunker-nginx \
-           --env-file=./configs/bunkerized_nginx.env \
-           --env-file=./configs/json_analytics.env \
-           --volume=bw-data:/data:Z \
-           --restart=always
+EnvironmentFile=./configs/bunkerized_nginx.env
+EnvironmentFile=./configs/json_analytics.env
+Volume=bw-data:/data:Z
 Network=shared-network
+AutoUpdate=registry
 
 [Install]
 WantedBy=default.target
