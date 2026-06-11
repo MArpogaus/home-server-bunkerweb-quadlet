@@ -1,10 +1,10 @@
 [Container]
 Image=docker.io/bunkerity/bunkerweb-scheduler:1.6.11
 ContainerName=bunker-scheduler
+Pod=proxy.pod
 EnvironmentFile=./configs/bunkerized_nginx.env
 EnvironmentFile=./configs/json_analytics.env
 Volume=bw-data:/data:Z
-Network=shared-network
 AutoUpdate=registry
 
 [Install]
