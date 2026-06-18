@@ -5,7 +5,7 @@ Pod=proxy.pod
 EnvironmentFile=./configs/bunkerized_nginx.env
 EnvironmentFile=./configs/json_analytics.env
 Volume=bw-nginx-data:/data:Z
-Volume=./files/json_analytics.conf:/etc/nginx/conf.d/json_analytics.conf:ro,Z
+Volume=./configs/json_analytics.conf:/etc/nginx/conf.d/json_analytics.conf:ro,Z
 AutoUpdate=registry
 
 [Service]

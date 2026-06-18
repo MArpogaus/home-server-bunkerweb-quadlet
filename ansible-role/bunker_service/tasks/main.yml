@@ -1,48 +1,19 @@
 ---
-- name: Ensure Bunkerweb user home directory exists
+- name: Ensure configs directory exists for bunker
   ansible.builtin.file:
     path: "{{ bunker_service_home }}/.config/containers/systemd/configs"
     state: directory
     owner: "{{ bunker_service_user }}"
+    group: "{{ bunker_service_user }}"
     mode: "0755"
 
-- name: Deploy Bunkerweb Quadlet files (container, volume, network)
-  ansible.builtin.copy:
-    src: "{{ bunker_service_role_dir }}/../../quadlets/"
-    dest: "{{ bunker_service_home }}/.config/containers/systemd/"
-    owner: "{{ bunker_service_user }}"
-    mode: "0644"
-    directory_mode: "0755"
-
-- name: Template Bunkerweb environment file
+- name: Deploy Bunkerweb environment files
   ansible.builtin.template:
-    src: bunkerized_nginx.env.j2
-    dest: "{{ bunker_service_home }}/.config/containers/systemd/configs/bunkerized_nginx.env"
+    src: "{{ item }}.j2"
+    dest: "{{ bunker_service_home }}/.config/containers/systemd/configs/{{ item }}"
     owner: "{{ bunker_service_user }}"
+    group: "{{ bunker_service_user }}"
     mode: "0600"
-
-- name: Template JSON analytics environment file
-  ansible.builtin.template:
-    src: json_analytics.env.j2
-    dest: "{{ bunker_service_home }}/.config/containers/systemd/configs/json_analytics.env"
-    owner: "{{ bunker_service_user }}"
-    mode: "0644"
-
-- name: Reload systemd user daemon for Bunkerweb
-  ansible.builtin.systemd:
-    daemon_reload: true
-    scope: user
-  become: true
-  become_user: "{{ bunker_service_user }}"
-
-- name: Start Bunkerweb Quadlet services (enable handled by Quadlet generator)
-  ansible.builtin.systemd:
-    name: "{{ item }}"
-    state: started
-    scope: user
-  become: true
-  become_user: "{{ bunker_service_user }}"
   loop:
-    - bunker-nginx
-    - bunker-scheduler
-    - promtail-proxy
+    - bunkerized_nginx.env
+    - json_analytics.env
