@@ -15,9 +15,8 @@ service-bunker/
 │   ├── shared-network.network       # Bridge network (10.89.0.0/24)
 │   ├── configs/                     # Environment file examples
 │   │   ├── bunkerized_nginx.env.example
-│   │   └── json_analytics.env.example
-│   └── files/                       # Static config files
-│       └── json_analytics.conf
+│   │   ├── json_analytics.env.example
+│   │   └── promtail-proxy.yaml
 ├── ansible-role/bunker_service/
 │   ├── defaults/main.yml
 │   ├── tasks/main.yml

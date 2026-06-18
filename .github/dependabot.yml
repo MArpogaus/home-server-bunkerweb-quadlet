@@ -8,7 +8,7 @@ updates:
     open-pull-requests-limit: 10
 
   - package-ecosystem: "docker"
-    directory: "/containers"
+    directory: "/quadlets"
     schedule:
       interval: "weekly"
     target-branch: "dev"
